@@ -6,7 +6,7 @@
 |--------|------|------------|-----------|---------|
 | POST | `/mirar/register/:botId/:value` | `botId` → ID do bot<br>`value` → valor da moeda | Registra um bot. Status inicial: `pending`. | ```bash curl -X POST http://localhost:3000/mirar/register/1234/10``` |
 | POST | `/mirar/change/:fromBot/:toBot/:userId/:amount` | `fromBot` → bot que envia moedas<br>`toBot` → bot que recebe<br>`userId` → usuário<br>`amount` → quantidade de moedas | Troca moedas entre dois bots aprovados para um usuário. | ```bash curl -X POST http://localhost:3000/mirar/change/1234/5678/42/5``` |
-| GET | `/mirar/balance/:botId/:userId` | `botId`, `userId` | Consulta o saldo do usuário em um bot. | ```bash curl http://localhost:3000/mirar/balance/1234/42``` |
+| GET | `/mirar/wallet/:botId/:userId` | `botId`, `userId` | Consulta o saldo do usuário em um bot. | ```bash curl http://localhost:3000/mirar/wallet/1234/42``` |
 
 ---
 
