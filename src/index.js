@@ -152,6 +152,6 @@ fastify.register(
 );
 
 const port = process.env.PORT || 3000
-fastify.listen({ port }, () => {
+fastify.listen({ port, host: "0.0.0.0" }, () => {
   console.log("🚀 MIRAR API online");
 });
