@@ -8,7 +8,6 @@ const redis = new Redis({
     url: process.env.UPSTASH_URL,
   token: process.env.UPSTASH_TOKEN,
 });
-});
 
 fastify.get("/", async () => { return { status: "MIRAR API online" };
 });
