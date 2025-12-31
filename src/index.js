@@ -5,8 +5,9 @@ const chalk = require("chalk");
 const { Redis } = require("@upstash/redis");
 
 const redis = new Redis({
-  url: "https://unbiased-ewe-5736.upstash.io",
-  token: "ARZoAAImcDI0NzBjNWMzMjU0NjM0YzAwODI0OWU4YWI0ODA3MzAxNXAyNTczNg",
+    url: process.env.UPSTASH_URL,
+  token: process.env.UPSTASH_TOKEN,
+});
 });
 
 fastify.get("/", async () => { return { status: "MIRAR API online" };
