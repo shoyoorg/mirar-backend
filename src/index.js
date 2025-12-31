@@ -98,6 +98,61 @@ fastify.get("/mirar/wallet/:botId/:userId", async (req, reply) => {
 
     reply.send({ botId, userId, balance });
 });
+// NOVA ROTA: depositar moedas em um bot para um usuário com cooldown de 3h
+fastify.post("/mirar/deposit/:botId/:userId/:amount", async (req, reply) => {
+  const { botId, userId, amount } = req.params;
+  const amt = Number(amount);
+
+  if (amt <= 0) {
+    return reply.code(400).send({ error: "Invalid amount" });
+  }
+
+  const botData = await redis.hgetall(`mirar:user:${botId}`);
+  if (!botData?.value) {
+    return reply.code(404).send({ error: "Bot not found" });
+  }
+
+  const cooldownKey = `mirar:deposit_cooldown:${botId}:${userId}`;
+  const lastDeposit = Number(await redis.get(cooldownKey)) || 0;
+  const now = Date.now();
+  const threeHours = 3 * 60 * 60 * 1000;
+
+  if (now - lastDeposit < threeHours) {
+    const remaining = threeHours - (now - lastDeposit);
+    const hours = Math.floor(remaining / (1000 * 60 * 60));
+    const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+    return reply.code(429).send({
+      error: `Cooldown ativo. Aguarde ${hours}h ${minutes}m antes de depositar novamente.`
+    });
+  }
+
+  const walletKey = `mirar:wallet:${botId}:${userId}`;
+  const currentBalance = Number(await redis.hget(walletKey, "balance")) || 0;
+
+  await redis.hset(walletKey, {
+    balance: currentBalance + amt,
+  });
+
+  const txKey = `mirar:tx:deposit:${Date.now()}:${userId}`;
+  await redis.hset(txKey, {
+    botId,
+    userId,
+    deposited: amt,
+    at: now,
+  });
+
+  // Atualiza o timestamp do último depósito
+  await redis.set(cooldownKey, now);
+
+  reply.send({
+    success: true,
+    botId,
+    userId,
+    deposited: amt,
+    newBalance: currentBalance + amt,
+    cooldown: "3h"
+  });
+});
 
 /* ---------------- TEAM (PRIVATE) ---------------- */
 
